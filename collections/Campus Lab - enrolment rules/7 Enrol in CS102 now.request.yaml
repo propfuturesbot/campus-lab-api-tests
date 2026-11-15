@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/enrollments"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "studentId": {{studentId}},
+      "courseId": 2
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("with CS101 passed, CS102 is allowed", () => {
+        pm.response.to.have.status(201);
+      });
+      pm.collectionVariables.set("secondEnrollmentId", pm.response.json().id);
+    language: text/javascript
+order: 7000

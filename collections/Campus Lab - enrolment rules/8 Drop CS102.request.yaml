@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/enrollments/{{secondEnrollmentId}}/drop"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("drop succeeds", () => {
+        pm.response.to.have.status(200);
+      });
+      pm.test("status is dropped, with a time", () => {
+        const e = pm.response.json();
+        pm.expect(e.status).to.eql("dropped");
+        pm.expect(e.droppedAt).to.be.a("string");
+      });
+    language: text/javascript
+order: 8000

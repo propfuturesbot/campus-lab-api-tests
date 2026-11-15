@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/students/{{studentId}}/gpa"
+method: GET
+headers:
+  X-API-Key: "{{apiKey}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("status is 200", () => {
+        pm.response.to.have.status(200);
+      });
+      pm.test("GPA was recomputed to 4.0", () => {
+        pm.expect(pm.response.json().gpa).to.eql(4);
+      });
+    language: text/javascript
+order: 6000

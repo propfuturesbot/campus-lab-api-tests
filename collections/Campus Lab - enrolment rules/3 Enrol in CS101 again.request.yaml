@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/enrollments"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "studentId": {{studentId}},
+      "courseId": 1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("a duplicate is refused with 409", () => {
+        pm.response.to.have.status(409);
+      });
+      pm.test("the error names the existing enrolment", () => {
+        pm.expect(pm.response.json().existingEnrollmentId).to.eql(pm.collectionVariables.get("enrollmentId"));
+      });
+    language: text/javascript
+order: 3000

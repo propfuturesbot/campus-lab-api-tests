@@ -1,0 +1,8 @@
+$kind: collection
+description: "Capstone: proves the enrolment rules end to end. Create a student, enrol, hit the duplicate and prerequisite rules, grade, check the GPA, drop, clean up."
+variables:
+  baseUrl: https://campus-lab-production.up.railway.app/api/v1
+  apiKey: ""
+  studentId: ""
+  enrollmentId: ""
+  secondEnrollmentId: ""

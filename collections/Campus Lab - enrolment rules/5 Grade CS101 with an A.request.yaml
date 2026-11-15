@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/grades"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "enrollmentId": {{enrollmentId}},
+      "grade": "A"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("grade is recorded", () => {
+        pm.response.to.have.status(201);
+      });
+      pm.test("an A is worth 4 points", () => {
+        pm.expect(pm.response.json().points).to.eql(4);
+      });
+    language: text/javascript
+order: 5000

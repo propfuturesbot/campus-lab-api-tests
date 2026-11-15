@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/enrollments/{{enrollmentId}}/drop"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("dropping a completed enrolment is refused with 409", () => {
+        pm.response.to.have.status(409);
+      });
+    language: text/javascript
+order: 9000

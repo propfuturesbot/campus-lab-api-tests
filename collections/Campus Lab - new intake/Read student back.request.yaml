@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/students/{{studentId}}"
+method: GET
+headers:
+  X-API-Key: "{{apiKey}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      const s = pm.response.json();
+      pm.test("the saved programme is " + pm.iterationData.get("programme"), () => {
+        pm.response.to.have.status(200);
+        pm.expect(s.programme).to.eql(pm.iterationData.get("programme"));
+        pm.expect(s.year).to.eql(pm.iterationData.get("year"));
+      });
+    language: text/javascript
+order: 2000

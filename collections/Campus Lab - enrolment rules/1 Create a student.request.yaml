@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/students"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "firstName": "Riya",
+      "lastName": "Capstone",
+      "email": "riya.{{$timestamp}}@example.edu",
+      "programme": "Computer Science",
+      "year": 1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("student is created", () => {
+        pm.response.to.have.status(201);
+      });
+      pm.test("new student is active", () => {
+        pm.expect(pm.response.json().status).to.eql("active");
+      });
+      pm.collectionVariables.set("studentId", pm.response.json().id);
+    language: text/javascript
+order: 1000

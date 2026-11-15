@@ -1,0 +1,8 @@
+# Use this workspace to collaborate
+workspace:
+  id: 4a5fb062-4a20-4e19-8690-20e8346f52fd
+
+localResources:
+  collections:
+    - ../collections/Campus Lab - enrolment rules
+    - ../collections/Campus Lab - new intake

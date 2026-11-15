@@ -1,0 +1,5 @@
+$kind: collection
+description: ""
+variables:
+  baseUrl: https://campus-lab-production.up.railway.app/api/v1
+  studentId: ""

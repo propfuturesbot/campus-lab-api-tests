@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/enrollments"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "studentId": {{studentId}},
+      "courseId": 1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("enrolment is created", () => {
+        pm.response.to.have.status(201);
+      });
+      const e = pm.response.json();
+      pm.test("it is for CS101 and the status is enrolled", () => {
+        pm.expect(e.course.code).to.eql("CS101");
+        pm.expect(e.status).to.eql("enrolled");
+      });
+      pm.collectionVariables.set("enrollmentId", e.id);
+    language: text/javascript
+order: 2000

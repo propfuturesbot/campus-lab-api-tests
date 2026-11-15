@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{baseUrl}}/students"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "firstName": "{{firstName}}",
+      "lastName": "{{lastName}}",
+      "email": "{{firstName}}.{{lastName}}.{{$randomInt}}@students.campuslab.edu",
+      "programme": "{{programme}}",
+      "year": {{year}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("created " + pm.iterationData.get("firstName"), () => {
+        pm.response.to.have.status(201);
+      });
+      pm.collectionVariables.set("studentId", pm.response.json().id);
+    language: text/javascript
+order: 1000

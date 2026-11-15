@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/enrollments"
+method: POST
+headers:
+  X-API-Key: "{{apiKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "studentId": {{studentId}},
+      "courseId": 2
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("missing prerequisite is refused with 422", () => {
+        pm.response.to.have.status(422);
+      });
+      pm.test("the error says CS101 is missing", () => {
+        pm.expect(pm.response.json().missingPrerequisites).to.include("CS101");
+      });
+    language: text/javascript
+order: 4000

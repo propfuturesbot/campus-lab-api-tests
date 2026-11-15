@@ -1,0 +1,14 @@
+$kind: http-request
+name: "10 Clean up: delete the student"
+url: "{{baseUrl}}/students/{{studentId}}"
+method: DELETE
+headers:
+  X-API-Key: "{{apiKey}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("student is deleted", () => {
+        pm.response.to.have.status(204);
+      });
+    language: text/javascript
+order: 10000
