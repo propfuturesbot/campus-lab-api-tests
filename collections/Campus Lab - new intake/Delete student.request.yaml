@@ -9,5 +9,8 @@ scripts:
       pm.test("cleaned up", () => {
         pm.response.to.have.status(204);
       });
+      pm.test("answers in under one second", () => {
+        pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
     language: text/javascript
 order: 3000
