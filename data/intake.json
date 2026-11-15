@@ -1,0 +1,20 @@
+[
+  {
+    "firstName": "Maya",
+    "lastName": "Singh",
+    "programme": "Physics",
+    "year": 1
+  },
+  {
+    "firstName": "Luca",
+    "lastName": "Bianchi",
+    "programme": "Chemistry",
+    "year": 2
+  },
+  {
+    "firstName": "Noor",
+    "lastName": "Hassan",
+    "programme": "History",
+    "year": 3
+  }
+]
