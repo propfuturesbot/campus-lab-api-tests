@@ -1,0 +1,484 @@
+{
+  "info": {
+    "name": "Campus Lab - enrolment rules",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Capstone: proves the enrolment rules end to end. Create a student, enrol, hit the duplicate and prerequisite rules, grade, check the GPA, drop, clean up."
+  },
+  "item": [
+    {
+      "name": "1 Create a student",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"student is created\", () => {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"new student is active\", () => {",
+              "  pm.expect(pm.response.json().status).to.eql(\"active\");",
+              "});",
+              "pm.collectionVariables.set(\"studentId\", pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Riya\",\n  \"lastName\": \"Capstone\",\n  \"email\": \"riya.{{$timestamp}}@example.edu\",\n  \"programme\": \"Computer Science\",\n  \"year\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "2 Enrol in CS101",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"enrolment is created\", () => {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const e = pm.response.json();",
+              "pm.test(\"it is for CS101 and the status is enrolled\", () => {",
+              "  pm.expect(e.course.code).to.eql(\"CS101\");",
+              "  pm.expect(e.status).to.eql(\"enrolled\");",
+              "});",
+              "pm.collectionVariables.set(\"enrollmentId\", e.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/enrollments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "enrollments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "3 Enrol in CS101 again",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"a duplicate is refused with 409\", () => {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "pm.test(\"the error names the existing enrolment\", () => {",
+              "  pm.expect(pm.response.json().existingEnrollmentId).to.eql(pm.collectionVariables.get(\"enrollmentId\"));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/enrollments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "enrollments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "4 Enrol in CS102 too early",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"missing prerequisite is refused with 422\", () => {",
+              "  pm.response.to.have.status(422);",
+              "});",
+              "pm.test(\"the error says CS101 is missing\", () => {",
+              "  pm.expect(pm.response.json().missingPrerequisites).to.include(\"CS101\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/enrollments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "enrollments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "5 Grade CS101 with an A",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"grade is recorded\", () => {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"an A is worth 4 points\", () => {",
+              "  pm.expect(pm.response.json().points).to.eql(4);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/grades",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "grades"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"enrollmentId\": {{enrollmentId}},\n  \"grade\": \"A\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "6 GPA is 4.0",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"status is 200\", () => {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"GPA was recomputed to 4.0\", () => {",
+              "  pm.expect(pm.response.json().gpa).to.eql(4);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/{{studentId}}/gpa",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "{{studentId}}",
+            "gpa"
+          ]
+        }
+      }
+    },
+    {
+      "name": "7 Enrol in CS102 now",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"with CS101 passed, CS102 is allowed\", () => {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "pm.collectionVariables.set(\"secondEnrollmentId\", pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/enrollments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "enrollments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "8 Drop CS102",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"drop succeeds\", () => {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"status is dropped, with a time\", () => {",
+              "  const e = pm.response.json();",
+              "  pm.expect(e.status).to.eql(\"dropped\");",
+              "  pm.expect(e.droppedAt).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/enrollments/{{secondEnrollmentId}}/drop",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "enrollments",
+            "{{secondEnrollmentId}}",
+            "drop"
+          ]
+        }
+      }
+    },
+    {
+      "name": "9 A graded course cannot be dropped",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"dropping a completed enrolment is refused with 409\", () => {",
+              "  pm.response.to.have.status(409);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/enrollments/{{enrollmentId}}/drop",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "enrollments",
+            "{{enrollmentId}}",
+            "drop"
+          ]
+        }
+      }
+    },
+    {
+      "name": "10 Clean up: delete the student",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"student is deleted\", () => {",
+              "  pm.response.to.have.status(204);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/students/{{studentId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "students",
+            "{{studentId}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://campus-lab-production.up.railway.app/api/v1"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "enrollmentId",
+      "value": ""
+    },
+    {
+      "key": "secondEnrollmentId",
+      "value": ""
+    }
+  ]
+}
