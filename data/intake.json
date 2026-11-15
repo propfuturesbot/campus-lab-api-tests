@@ -16,5 +16,11 @@
     "lastName": "Hassan",
     "programme": "History",
     "year": 3
+  },
+  {
+    "firstName": "Omar",
+    "lastName": "Reyes",
+    "programme": "Mathematics",
+    "year": 9
   }
 ]
