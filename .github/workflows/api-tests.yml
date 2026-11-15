@@ -1,0 +1,38 @@
+name: API tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run the collection
+        run: >
+          newman run collections/intake.postman_collection.json
+          -e ci.env.json
+          -d data/intake.json
+          --env-var apiKey=${{ secrets.CAMPUS_KEY }}
+          -r cli,junit
+          --reporter-junit-export results/junit.xml
+
+      - name: Upload the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: results/junit.xml
