@@ -1,0 +1,36 @@
+name: API tests (Postman CLI)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  postman-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the Postman CLI
+        run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Run the new intake collection
+        run: >
+          postman collection run "collections/Campus Lab - new intake"
+          -d data/intake.json
+          --env-var apiKey=${{ secrets.CAMPUS_KEY }}
+          --output results
+
+      - name: Run the enrolment rules collection
+        run: >
+          postman collection run "collections/Campus Lab - enrolment rules"
+          --env-var apiKey=${{ secrets.CAMPUS_KEY }}
+          --output results
+
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: results
